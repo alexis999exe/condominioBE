@@ -1,14 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\ChatController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-use App\Http\Controllers\Api\ChatController;
-
-Route::prefix('api/chat')->group(function () {
+Route::prefix('chat')->group(function () {
     Route::get('/messages', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::delete('/messages/{message}', [ChatController::class, 'destroy']);
