@@ -2,22 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'department_id',
         'role',
+        'department_number',
+        'department_id',
     ];
 
     protected $hidden = [
@@ -25,20 +26,45 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // ══════════════════════════════════════════════════════════
+    // MÉTODOS DE ROLES
+    // ══════════════════════════════════════════════════════════
+
+    public function isAdmin(): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->role === 'admin';
     }
 
-    public function department(): BelongsTo
+    public function isResident(): bool
+    {
+        return $this->role === 'resident';
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // RELACIONES
+    // ══════════════════════════════════════════════════════════
+
+    public function department()
     {
         return $this->belongsTo(Department::class);
     }
 
-    public function messages(): HasMany
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function messages()
     {
         return $this->hasMany(Message::class);
     }
