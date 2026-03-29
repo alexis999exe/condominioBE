@@ -12,14 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // CORS global — debe ejecutarse antes que cualquier otro middleware
+        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
+
         // CSRF exceptions
         $middleware->validateCsrfTokens(except: [
             'api/chat/messages',
         ]);
 
-        // Register custom middleware aliases
+        // Custom middleware aliases
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
+            'role'           => \App\Http\Middleware\CheckRole::class,
             'active.session' => \App\Http\Middleware\ValidateActiveSession::class,
         ]);
     })
