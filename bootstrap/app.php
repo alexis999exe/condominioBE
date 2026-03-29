@@ -12,14 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // AQUÍ AGREGAS LA EXCEPCIÓN
+        // CSRF exceptions
         $middleware->validateCsrfTokens(except: [
-            'api/chat/messages', 
+            'api/chat/messages',
+        ]);
+
+        // Register custom middleware aliases
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'active.session' => \App\Http\Middleware\ValidateActiveSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-
-    
-    
