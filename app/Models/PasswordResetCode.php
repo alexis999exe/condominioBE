@@ -9,37 +9,50 @@ class PasswordResetCode extends Model
     protected $fillable = [
         'email',
         'code',
-        'expires_at',
         'used',
+        'expires_at',
     ];
 
     protected $casts = [
+        'used'       => 'boolean',
         'expires_at' => 'datetime',
-        'used' => 'boolean',
     ];
 
-    /**
-     * Verificar si el código ha expirado
-     */
+    // ── Scopes ──────────────────────────────────────────────
+
+    /** Códigos aún no expirados y no usados */
+    public function scopeValid($query)
+    {
+        return $query
+            ->where('used', false)
+            ->where('expires_at', '>', now());
+    }
+
+    /** Códigos de un email específico */
+    public function scopeForEmail($query, string $email)
+    {
+        return $query->where('email', $email);
+    }
+
+    // ── Helpers ─────────────────────────────────────────────
+
     public function isExpired(): bool
     {
-        return now()->isAfter($this->expires_at);
+        return $this->expires_at->isPast();
     }
 
-    /**
-     * Marcar código como usado
-     */
+    public function isUsed(): bool
+    {
+        return $this->used;
+    }
+
+    public function isValid(): bool
+    {
+        return ! $this->isUsed() && ! $this->isExpired();
+    }
+
     public function markAsUsed(): void
     {
-        $this->used = true;
-        $this->save();
-    }
-
-    /**
-     * Generar código aleatorio de 6 dígitos
-     */
-    public static function generateCode(): string
-    {
-        return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $this->update(['used' => true]);
     }
 }

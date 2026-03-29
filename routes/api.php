@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PasswordResetController;
 
 // ══════════════════════════════════════════════════════════
 // RUTAS PÚBLICAS (sin autenticación)
@@ -14,6 +15,13 @@ Route::post('/auth/login',    [AuthController::class, 'login']);
 Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
 Route::get('/auth/verify/{id}/{hash}',   [AuthController::class, 'verify'])
     ->name('verification.verify');
+
+// ── Recuperación de contraseña (3 pasos, sin auth) ────────
+Route::prefix('password')->group(function () {
+    Route::post('/send-code',   [PasswordResetController::class, 'sendCode']);
+    Route::post('/verify-code', [PasswordResetController::class, 'verifyCode']);
+    Route::post('/reset',       [PasswordResetController::class, 'resetPassword']);
+});
 
 // ══════════════════════════════════════════════════════════
 // RUTAS PROTEGIDAS

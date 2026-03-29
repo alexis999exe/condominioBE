@@ -63,3 +63,4 @@ class AdminUserSeeder extends Seeder
         $this->command->info('✅ Usuarios residentes creados (password: password123)');
     }
 }
+
